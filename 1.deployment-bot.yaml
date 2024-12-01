@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: stud
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: quotes-bot
+  namespace: stud
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quotes-bot
+  template:
+    metadata:
+      labels:
+        app: quotes-bot
+    spec:
+      containers:
+      - name: quotes-bot
+        image: simonovav23/wolf-citatnik-bot:1.1
+        env:
+        - name: TELEGRAM_BOT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: quotes-bot-sc
+              key: telegram-bot-token
+        volumeMounts:
+        - name: quotes-bot-vm
+          mountPath: /app/quotes.txt
+          subPath: quotes.txt
+      volumes:
+      - name: quotes-bot-vm
+        configMap:
+          name: quotes-bot-cm
+---
